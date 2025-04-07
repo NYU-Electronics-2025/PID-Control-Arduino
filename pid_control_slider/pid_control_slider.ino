@@ -22,6 +22,9 @@ typedef struct {
   float data[NUM_CMD_DATA];
 } CommandT;
 
+const double min_setpoint = 0;
+const double max_setpoint = 1023;
+
 double setpoint = 512;
 double measurement = 0;
 double output = 0;
@@ -189,6 +192,8 @@ void parseCommand(CommandT c) {
       return;
     case 'S':  //set setpoint
       setpoint = c.data[0];
+      setpoint = setpoint < min_setpoint ? min_setpoint : setpoint;
+      setpoint = setpoint > max_setpoint ? max_setpoint : setpoint;
       return;
     case 'O':  //set output
       output = c.data[0];
