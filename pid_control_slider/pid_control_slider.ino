@@ -59,8 +59,8 @@ void setup() {
   pinMode(input_pin, INPUT);
   pinMode(output_pin_a, OUTPUT);
   pinMode(output_pin_b, OUTPUT);
-  analogWriteResolution(12); //12 bits
-  analogReadResolution(12); //12 bits
+  analogWriteResolution(10); //10 bits 0 to 1023
+  analogReadResolution(10); //10 bits 0 to 1023
   analogWriteFreq(pwm_freq);
   for (int j = 0; j < num_debug_pins; ++j){
     if (debug_pin[j] > 0) {
