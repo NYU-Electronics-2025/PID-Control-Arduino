@@ -75,10 +75,7 @@ void loop() {
     debug_out(j,0);
   }
   debug_out(0,HIGH);
-  if (report_interval > 0 && time_since_report > report_interval){
-    time_since_report -= report_interval;
-    sendReport();
-  }
+  pollSerial();
   debug_out(1,HIGH);
   measure_loop();
   debug_out(2,HIGH);
@@ -139,6 +136,16 @@ int readLineSerial(char buff[], int buffersize, unsigned int timeout) {
   }
   return -i; //0 if nothing read, negative value if read was incomplete
 }
+void pollSerial() {
+  if (!Serial) {
+    return;
+  }
+  processSerialLine();
+   if (report_interval > 0 && time_since_report > report_interval){
+    time_since_report -= report_interval;
+    sendReport();
+  }
+}
 
 void processSerialLine() {
   char buff[CHAR_BUF_SIZE];
@@ -189,6 +196,7 @@ void parseCommand(CommandT c) {
     case 'R':  //get report or report every xx seconds
       sendReport();
       report_interval = c.data[0];
+      time_since_report = 0;
       return;
     case 'Y': //set frequency
       pwm_freq = c.data[0];
