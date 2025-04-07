@@ -45,7 +45,7 @@ const int debug_pin[num_debug_pins] = {-1,-1,-1,-1}; //fill in with actual pin n
 
 int report_interval = 0;
 
-//create a pid object that connects to setpoint, measurement, output
+//create a pid object that connects to setpoint, measurement, output; default feedback is direct and all Ks set to 0 initially
 PID myPID(&measurement, &output, &setpoint, 0, 0, 0, DIRECT);
 
 elapsedMillis time_since_report;
@@ -54,6 +54,7 @@ void setup() {
   // put your setup code here, to run once:
   myPID.SetMode(0);
   myPID.SetOutputLimits(-1023, 1023);
+  myPID.SetSampleTime(10);
   pinMode(input_pin, INPUT);
   pinMode(output_pin_a, OUTPUT);
   pinMode(output_pin_b, OUTPUT);
