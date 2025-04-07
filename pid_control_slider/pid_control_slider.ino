@@ -31,9 +31,10 @@ double output = 0;
 
 double pwm_freq = 100;
 
-int num_meas_to_avg = 100;
+int num_meas_to_avg = 1000;
 double meas_accum = 0;
 int num_meas = 0;
+int num_cycles_since_compute = 0;
 
 //must specify values
 const int input_pin = 26; //ADC0
@@ -83,7 +84,12 @@ void loop() {
   debug_out(1,HIGH);
   measure_loop();
   debug_out(2,HIGH);
-  myPID.Compute();
+  if (myPID.Compute()) {
+    num_meas_to_avg = (int) (num_cycles_since_compute * 0.9 + 1); 
+    num_cycles_since_compute = 0;
+  } else {
+    ++num_cycles_since_compute;
+  }
   debug_out(3,HIGH);
   setOutput(output);
 
@@ -204,9 +210,13 @@ void parseCommand(CommandT c) {
       report_interval = c.data[0];
       time_since_report = 0;
       return;
-    case 'Y': //set frequency
+    case 'Y': //set pwm frequency
       pwm_freq = c.data[0];
       analogWriteFreq(pwm_freq);
+    case 'C': // set computation period in ms
+      if (c.data[0] > 0) {
+        myPID.SetSampleTime(c.data[0]);
+      }
     default:
       digitalWrite(LED_BUILTIN, HIGH);
   }
