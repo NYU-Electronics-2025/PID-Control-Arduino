@@ -8,14 +8,16 @@
 
 #include "tusb.h"
 
-#define mega 1000000.f
-#define micro 0.000001f
+const bool analog_driver = true;
+#define VERSION 2
 
 
+const float mega = 1000000.f;
+const float micro = 0.000001f
 #define NUM_CMD_DATA 4
 #define CHAR_BUF_SIZE 128
 
-#define VERSION 1
+
 
 typedef struct {
   char cmd;
@@ -24,6 +26,8 @@ typedef struct {
 
 const double min_setpoint = 0;
 const double max_setpoint = 1023;
+
+const int analog_zero_out = 512;
 
 double setpoint = 512;
 double measurement = 0;
@@ -40,6 +44,7 @@ int num_cycles_since_compute = 0;
 const int input_pin = 26; //ADC0
 const int output_pin_a = 16;
 const int output_pin_b = 17;
+const int analog_out_pin = 17;
 
 const int num_debug_pins = 4;
 const int debug_pin[num_debug_pins] = {-1,-1,-1,-1}; //fill in with actual pin numbers to use
@@ -53,6 +58,10 @@ elapsedMillis time_since_report;
 
 void setup() {
   // put your setup code here, to run once:
+  if (analog_driver) {
+    pwm_freq = 200000;
+  }
+
   myPID.SetMode(0);
   myPID.SetOutputLimits(-1023, 1023);
   myPID.SetSampleTime(10);
@@ -97,6 +106,14 @@ void loop() {
 
 //sets output value from -1023 (full reverse) to 1023 (full forward)
 void setOutput(double value) {
+  if (analog_driver) {
+    //input -1023 -> 1023, input 1023 -> 0 (typical); input 0 -> analog_output_zero
+      int outvalue = (int) (-value/2.0 + analog_output_zero + 0.5);
+      outvalue = outvalue > 0 ? outvalue : 0;
+      outvalue = outvalue < 1023 ? outvalue : 1023;
+      analogWrite(analog_out_pin, outvalue)
+      return;
+  }
   if (value > 0) {
     digitalWrite(output_pin_b, LOW);
     analogWrite(output_pin_a, (int) (value + 0.5));
