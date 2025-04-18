@@ -9,7 +9,7 @@
 #include "tusb.h"
 
 const bool analog_driver = true;
-#define VERSION 2
+#define VERSION 3
 
 
 const float mega = 1000000.f;
@@ -33,7 +33,7 @@ double setpoint = 512;
 double measurement = 0;
 double output = 0;
 
-double pwm_freq = 100;
+double pwm_freq = 10;
 
 int num_meas_to_avg = 1000;
 double meas_accum = 0;
